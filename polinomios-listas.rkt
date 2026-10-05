@@ -13,7 +13,7 @@
 ;;   coeficiente-de    : polinomio x exponente -> coeficiente
 ;;   eliminar-termino  : polinomio x exponente -> polinomio
 
-(provide polinomio-cero insertar-termino coeficiente-de eliminar-termino)
+(provide (all-defined-out))
 
 ;;Constructores y observadores:
  
@@ -205,7 +205,7 @@
     (cond
       ((not (and (integer? exponente) (exact? exponente) (>= exponente 0)))
        (eopl:error 'insertar-termino "El exponente debe ser un entero no negativo"))
-      ((not (and (number? coeficiente) (exact? coeficiente)))
+      ((not (and (number? coeficiente) (real? coeficiente) (exact? coeficiente)))
        (eopl:error 'insertar-termino "El coeficiente debe ser un numero exacto"))
       (else
        (poli (poli->var polinomio)

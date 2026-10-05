@@ -2,7 +2,7 @@
 ;Autores: Josue David Cocoma Tascon 2477087, Juan Diego Montaño Vergara 2477334
 
 ;; Taller 1 — Polinomios dispersos.
-;; Parte 2: representación basada en procedimientos.
+;; Parte 1: representación basada en listas.
 ;;
 ;; Interfaz del TAD. Cada función va comentada con su nombre, su contrato
 ;; (entrada -> salida) y su propósito, y ninguna recorre la lista de términos
@@ -13,201 +13,166 @@
 ;;   coeficiente-de    : polinomio x exponente -> coeficiente
 ;;   eliminar-termino  : polinomio x exponente -> polinomio
 
-(provide (all-defined-out))
+(provide polinomio-cero insertar-termino coeficiente-de eliminar-termino)
 
 ;;Constructores y observadores:
-
+ 
 ;; Crea un polinomio con su variable y su lista de terminos
 (define poli
   (lambda (var terms)
-    (lambda (mensaje)
-      (cond
-        ((eqv? mensaje 'tipo) 'poli)
-        ((eqv? mensaje 'poli->var) var)
-        ((eqv? mensaje 'poli->terms) terms)
-        (else #f)))))
+    (list 'poli var terms)))
  
 ;; Dice si x es un polinomio
 (define poli?
   (lambda (x)
-    (and (procedure? x) (eqv? (x 'tipo) 'poli))))
+    (and (pair? x) (eqv? (car x) 'poli))))
  
 ;; Saca la variable del polinomio
 (define poli->var
   (lambda (p)
-    (p 'poli->var)))
+    (car (cdr p))))
  
-;; Saca la lista de trrminos del polinomio
+;; Saca la lista de terminos del polinomio
 (define poli->terms
   (lambda (p)
-    (p 'poli->terms)))
+    (car (cdr (cdr p)))))
  
 ;; Crea una variable
 (define nombre-var
   (lambda (s)
-    (lambda (mensaje)
-      (cond
-        ((eqv? mensaje 'tipo) 'nombre-var)
-        ((eqv? mensaje 'nombre-var->s) s)
-        (else #f)))))
+    (list 'nombre-var s)))
  
-;; Dice si x es una variable
+;; Sice si x es una variable
 (define nombre-var?
   (lambda (x)
-    (and (procedure? x) (eqv? (x 'tipo) 'nombre-var))))
+    (and (pair? x) (eqv? (car x) 'nombre-var))))
  
-;; Saca el símbolo de la variable
+;; Saca el simbolo de la variable
 (define nombre-var->s
   (lambda (v)
-    (v 'nombre-var->s)))
+    (car (cdr v))))
  
-;; Crea la lista vacía de terminos
+;; Crea la lista vacia de terminos
 (define sin-terminos
   (lambda ()
-    (lambda (mensaje)
-      (cond
-        ((eqv? mensaje 'tipo) 'sin-terminos)
-        (else #f)))))
+    (list 'sin-terminos)))
  
-;; Dice si x es la lista vacía de terminos
+;; Dice si x es la lista vacia
 (define sin-terminos?
   (lambda (x)
-    (and (procedure? x) (eqv? (x 'tipo) 'sin-terminos))))
+    (and (pair? x) (eqv? (car x) 'sin-terminos))))
  
-;; Crea una lista de terminos con un primer término y el resto
+;; Crea una lista de terminos con un primer termino y el resto.
 (define mas-terminos
   (lambda (term resto)
-    (lambda (mensaje)
-      (cond
-        ((eqv? mensaje 'tipo) 'mas-terminos)
-        ((eqv? mensaje 'mas-terminos->term) term)
-        ((eqv? mensaje 'mas-terminos->resto) resto)
-        (else #f)))))
+    (list 'mas-terminos term resto)))
  
-;; Dice si x es una lista de terminos que no esta vacía
+;; Dice si x es una lista de terminos que no esta vacia
 (define mas-terminos?
   (lambda (x)
-    (and (procedure? x) (eqv? (x 'tipo) 'mas-terminos))))
+    (and (pair? x) (eqv? (car x) 'mas-terminos))))
  
-;; saca el primer termino de la lista
+;; Saca el primer termino de la lista
 (define mas-terminos->term
   (lambda (ts)
-    (ts 'mas-terminos->term)))
+    (car (cdr ts))))
  
-;; Saca el resto de la lista 
+;; Saca el resto de la lista
 (define mas-terminos->resto
   (lambda (ts)
-    (ts 'mas-terminos->resto)))
+    (car (cdr (cdr ts)))))
  
-;; Crea un término
+;; Crea un termino
 (define termino
   (lambda (coef expo)
-    (lambda (mensaje)
-      (cond
-        ((eqv? mensaje 'tipo) 'termino)
-        ((eqv? mensaje 'termino->coef) coef)
-        ((eqv? mensaje 'termino->expo) expo)
-        (else #f)))))
+    (list 'termino coef expo)))
  
 ;; Dice si x es un termino
 (define termino?
   (lambda (x)
-    (and (procedure? x) (eqv? (x 'tipo) 'termino))))
+    (and (pair? x) (eqv? (car x) 'termino))))
  
 ;; Saca el coeficiente del termino
 (define termino->coef
   (lambda (t)
-    (t 'termino->coef)))
+    (car (cdr t))))
  
 ;; Saca el exponente del termino
 (define termino->expo
   (lambda (t)
-    (t 'termino->expo)))
+    (car (cdr (cdr t)))))
  
 ;; Crea un coeficiente entero
 (define coef-ent
   (lambda (n)
-    (lambda (mensaje)
-      (cond
-        ((eqv? mensaje 'tipo) 'coef-ent)
-        ((eqv? mensaje 'coef-ent->n) n)
-        (else #f)))))
+    (list 'coef-ent n)))
  
 ;; Dice si x es un coeficiente entero
 (define coef-ent?
   (lambda (x)
-    (and (procedure? x) (eqv? (x 'tipo) 'coef-ent))))
+    (and (pair? x) (eqv? (car x) 'coef-ent))))
  
 ;; Saca el entero del coeficiente
 (define coef-ent->n
   (lambda (c)
-    (c 'coef-ent->n)))
+    (car (cdr c))))
  
 ;; Crea un coeficiente racional con numerador y denominador
 (define coef-rac
   (lambda (num den)
-    (lambda (mensaje)
-      (cond
-        ((eqv? mensaje 'tipo) 'coef-rac)
-        ((eqv? mensaje 'coef-rac->num) num)
-        ((eqv? mensaje 'coef-rac->den) den)
-        (else #f)))))
+    (list 'coef-rac num den)))
  
 ;; Dice si x es un coeficiente racional
 (define coef-rac?
   (lambda (x)
-    (and (procedure? x) (eqv? (x 'tipo) 'coef-rac))))
+    (and (pair? x) (eqv? (car x) 'coef-rac))))
  
-;; Saca el numerador del coeficiente racional
+; Saca el numerador del coeficiente racional
 (define coef-rac->num
   (lambda (c)
-    (c 'coef-rac->num)))
+    (car (cdr c))))
  
 ;; Saca el denominador del coeficiente racional
 (define coef-rac->den
   (lambda (c)
-    (c 'coef-rac->den)))
+    (car (cdr (cdr c)))))
  
 ;; Crea un exponente
 (define expo-nat
   (lambda (k)
-    (lambda (mensaje)
-      (cond
-        ((eqv? mensaje 'tipo) 'expo-nat)
-        ((eqv? mensaje 'expo-nat->k) k)
-        (else #f)))))
+    (list 'expo-nat k)))
  
 ;; Dice si x es un exponente
 (define expo-nat?
   (lambda (x)
-    (and (procedure? x) (eqv? (x 'tipo) 'expo-nat))))
+    (and (pair? x) (eqv? (car x) 'expo-nat))))
  
 ;; Saca el entero del exponente
 (define expo-nat->k
   (lambda (e)
-    (e 'expo-nat->k)))
- 
-;;  Funciones de la interfaz 
- 
-;; Pasa un número a coef-ent o coef-rac.
+    (car (cdr e))))
+
+;; Funciones de la interfaz:
+
+;; Pasa un numero a coef-ent si es entero o coef-rac
 (define a-coeficiente
   (lambda (c)
     (if (integer? c)
         (coef-ent c)
         (coef-rac (numerator c) (denominator c)))))
- 
-;; Pasa un coeficiente coef-ent o coef-rac a número
+
+;; Pasa un coeficiente coef-ent o coef-rac a numero 
 (define de-coeficiente
   (lambda (c)
     (if (coef-ent? c)
         (coef-ent->n c)
         (/ (coef-rac->num c) (coef-rac->den c)))))
- 
+
 ;; Crea el polinomio nulo
 (define polinomio-cero
   (lambda (variable)
     (poli (nombre-var variable) (sin-terminos))))
- 
+
 ;; Inserta c*x^e en una lista decreciente recorriéndola una sola vez,
 ;; si c=0 no cambia, si el exponente existe, suma coeficientes
 (define insertar-en-terminos
@@ -233,21 +198,20 @@
                                  resto)))
               (else
                (mas-terminos primero (insertar-en-terminos resto c e)))))))))
- 
-;; Agrega un término manteniendo el orden decreciente y sin coeficientes cero,
-;; lanza error si el exponente no es entero positivo o el coeficiente no es exacto
+
+;; Agrega un termino al polinomio manteniendo el orden decreciente y sin coeficientes cero
 (define insertar-termino
   (lambda (polinomio coeficiente exponente)
     (cond
       ((not (and (integer? exponente) (exact? exponente) (>= exponente 0)))
        (eopl:error 'insertar-termino "El exponente debe ser un entero no negativo"))
-      ((not (and (number? coeficiente) (real? coeficiente) (exact? coeficiente)))
+      ((not (and (number? coeficiente) (exact? coeficiente)))
        (eopl:error 'insertar-termino "El coeficiente debe ser un numero exacto"))
       (else
        (poli (poli->var polinomio)
              (insertar-en-terminos (poli->terms polinomio) coeficiente exponente))))))
- 
-;; Busca el término con exponente e y devuelve su coeficiente
+
+;; Busca el termino con exponente e y devuelve su coeficiente
 (define buscar-en-terminos
   (lambda (terms e)
     (if (sin-terminos? terms)
@@ -256,13 +220,13 @@
           (if (= e (expo-nat->k (termino->expo primero)))
               (de-coeficiente (termino->coef primero))
               (buscar-en-terminos (mas-terminos->resto terms) e))))))
- 
-;; Devuelve el coeficiente del término que tiene ese exponente
+
+;; Devuelve el coeficiente del termino que tiene ese exponente
 (define coeficiente-de
   (lambda (polinomio exponente)
     (buscar-en-terminos (poli->terms polinomio) exponente)))
- 
-;; Devuelve la lista de términos sin el que tiene exponente e, dejando los demás en el mismo orden
+
+;; Elimina el termino con exponente e recorriendo la lista una sola vez y manteniendo el orden
 (define eliminar-de-terminos
   (lambda (terms e)
     (if (sin-terminos? terms)
@@ -272,10 +236,9 @@
           (if (= e (expo-nat->k (termino->expo primero)))
               resto
               (mas-terminos primero (eliminar-de-terminos resto e)))))))
- 
+
 ;; Devuelve un polinomio nuevo sin el término de ese exponente
 (define eliminar-termino
   (lambda (polinomio exponente)
     (poli (poli->var polinomio)
           (eliminar-de-terminos (poli->terms polinomio) exponente))))
- 
